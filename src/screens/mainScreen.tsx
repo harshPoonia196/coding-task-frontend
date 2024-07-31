@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Stepper,
-  Step,
-  StepLabel,
-  Button,
-  Typography,
-  Box,
-  Grid,
-  Card,
-} from "@mui/material";
+import { Stepper, Step, StepLabel, Box, Grid, Card } from "@mui/material";
 import UserDetailsForm from "../components/userDetailsForm";
 import AddressForm from "../components/address";
 import UserDetailsView from "../components/userDetailsView";
@@ -37,10 +28,6 @@ const MainScreen: React.FC = () => {
     "Upload file",
   ];
 
-  const handleReset = () => {
-    setActiveStep(0);
-  };
-
   const Comp = stepComponents[activeStep];
 
   return (
@@ -59,16 +46,9 @@ const MainScreen: React.FC = () => {
           ))}
         </Stepper>
         <Grid>
-          {activeStep === steps.length ? (
-            <Box>
-              <Typography>All steps completed</Typography>
-              <Button onClick={handleReset}>Reset</Button>
-            </Box>
-          ) : (
-            <Box style={{ padding: 20 }}>
-              <Comp activeStep={activeStep} setActiveStep={setActiveStep} />
-            </Box>
-          )}
+          <Box style={{ padding: 20 }}>
+            <Comp activeStep={activeStep} setActiveStep={setActiveStep} />
+          </Box>
         </Grid>
       </Card>
     </Grid>
