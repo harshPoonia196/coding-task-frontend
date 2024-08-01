@@ -8,9 +8,8 @@ import {
 } from "@mui/material";
 import { FormikValues, useFormik } from "formik";
 import * as Yup from "yup";
-import { ICommonProps } from "../../screens/mainScreen";
-import { useAppDispatch } from "../../store";
-import { setUserData } from "../../store/user";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { setActiveStep, setUserData } from "../../store/user";
 
 // Form validation schema
 const validationSchema = Yup.object({
@@ -24,26 +23,20 @@ const validationSchema = Yup.object({
     .required("Email is required"),
 });
 
-const initialValues = {
-  firstName: "",
-  lastName: "",
-  phone: "",
-  email: "",
-};
-
-const UserDetailsForm = (props: ICommonProps) => {
-  const { setActiveStep } = props;
+const UserDetailsForm = () => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((s) => s.user);
 
   const onSubmit = (v: FormikValues) => {
     dispatch(setUserData(v));
-    setActiveStep(1);
+    dispatch(setActiveStep(1));
   };
 
   const formik = useFormik({
-    initialValues,
+    initialValues: user,
     validationSchema,
     onSubmit,
+    enableReinitialize: true,
   });
 
   const { values, handleChange, handleBlur, handleSubmit, errors, touched } =

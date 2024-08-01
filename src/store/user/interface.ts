@@ -6,7 +6,7 @@ export interface IUser {
   country: string;
   lastName: string;
   firstName: string;
-  postalCode: number;
+  postalCode: string;
   addressLine2: string;
   addressLine1: string;
 }
@@ -14,6 +14,7 @@ export interface IUser {
 export interface IUserState {
   loading: false;
   user: IUser;
+  activeStep: number;
 }
 
 export type AuthUserRes = {

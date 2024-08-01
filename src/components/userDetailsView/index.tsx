@@ -7,21 +7,20 @@ import {
   Button,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../store";
-import { ICommonProps } from "../../screens/mainScreen";
-import { createUser } from "../../store/user";
+import { createUser, resetUserData, setActiveStep } from "../../store/user";
 import ShowSnackbar from "../../utils";
 
-const UserDetailsView = (props: ICommonProps) => {
-  const { setActiveStep } = props;
+const UserDetailsView = () => {
   const dispatch = useAppDispatch();
 
   const { user } = useAppSelector((s) => s.user);
 
   const handleNext = async () => {
     const { payload } = (await dispatch(createUser(user))) as any;
-    if (payload) {
+    if (!payload.error) {
       ShowSnackbar.success("User created successfully");
-      setActiveStep(3);
+      dispatch(setActiveStep(3));
+      dispatch(resetUserData());
     }
   };
 
@@ -109,7 +108,7 @@ const UserDetailsView = (props: ICommonProps) => {
           marginTop: 2,
         }}
       >
-        <Button onClick={() => setActiveStep(1)}>Back</Button>
+        <Button onClick={() => dispatch(setActiveStep(1))}>Back</Button>
         <Button onClick={handleNext} variant="contained" color="primary">
           Next
         </Button>

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Stepper, Step, StepLabel, Box, Grid, Card } from "@mui/material";
 import UserDetailsForm from "../components/userDetailsForm";
 import AddressForm from "../components/address";
 import UserDetailsView from "../components/userDetailsView";
 import UploadExcelFile from "../components/uploadFile";
+import { useAppSelector } from "../store";
 
-type StepComponent = (props: ICommonProps) => JSX.Element;
+type StepComponent = () => JSX.Element;
 const stepComponents: { [key: number]: StepComponent } = {
   0: UserDetailsForm,
   1: AddressForm,
@@ -13,13 +14,8 @@ const stepComponents: { [key: number]: StepComponent } = {
   3: UploadExcelFile,
 };
 
-export interface ICommonProps {
-  setActiveStep: (v: number) => void;
-  activeStep: number;
-}
-
 const MainScreen: React.FC = () => {
-  const [activeStep, setActiveStep] = useState<number>(0);
+  const { activeStep } = useAppSelector((s) => s.user);
 
   const steps = [
     "Add details",
@@ -47,7 +43,7 @@ const MainScreen: React.FC = () => {
         </Stepper>
         <Grid>
           <Box style={{ padding: 20 }}>
-            <Comp activeStep={activeStep} setActiveStep={setActiveStep} />
+            <Comp />
           </Box>
         </Grid>
       </Card>

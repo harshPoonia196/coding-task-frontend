@@ -1,18 +1,20 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AuthUserRes, IUser, IUserState } from "./interface";
-// import { persistor } from "store";
-// import { handleLoading, handleRejected } from "store/utils";
-// import { processError } from "utilities";
-// import SnackbarUtils, { SnackbarUtilsConfig } from "utilities/SnackbarUtils";
 
 import * as userServices from "../../services/user";
 import { handleLoading, handleRejected } from "../storeUtils";
+import ShowSnackbar from "../../utils";
 
 export const createUser = createAsyncThunk<AuthUserRes, IUser>(
   "user/create-user",
-  async (params) => {
-    const { data } = await userServices.createUserRequest(params);
-    return Promise.resolve(data);
+  async (params, thunkApi) => {
+    try {
+      const { data } = await userServices.createUserRequest(params);
+      return Promise.resolve(data);
+    } catch (err: any) {
+      ShowSnackbar.error(err.response.data.error);
+      return thunkApi.rejectWithValue(err.response.data);
+    }
   }
 );
 
@@ -21,12 +23,17 @@ export const uploadFile = createAsyncThunk<AuthUserRes, FormData>(
   async (params, thunkApi) => {
     try {
       const data = await userServices.uploadUserFileRequest(params);
-      console.log("data ===========>", data);
+      ShowSnackbar.success("File uploaded successfully");
       return Promise.resolve(data.data);
-    } catch (error: any) {
-      console.log("catch ===========>", error.response.data);
+    } catch (err: any) {
+      const payload = err.response.data;
+      console.log("err payload ===========>", payload);
 
-      return thunkApi.rejectWithValue(error.response.data);
+      const inValidRows = payload.invalidRows.map((e: any) => e.rowNumber);
+      ShowSnackbar.error(
+        `${payload.error}, Invalid rows are ${String(inValidRows)}`
+      );
+      return thunkApi.rejectWithValue(err.response.data);
     }
   }
 );
@@ -34,6 +41,7 @@ export const uploadFile = createAsyncThunk<AuthUserRes, FormData>(
 const initialState: IUserState = {
   loading: false,
   user: {} as IUser,
+  activeStep: 0,
 };
 
 export const userSlice = createSlice({
@@ -43,6 +51,12 @@ export const userSlice = createSlice({
     setUserData: (state, { payload }) => {
       const data = state.user;
       state.user = { ...data, ...payload };
+    },
+    resetUserData: (state) => {
+      state.user = {} as IUser;
+    },
+    setActiveStep: (state, { payload }) => {
+      state.activeStep = payload;
     },
   },
 
@@ -65,6 +79,6 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUserData } = userSlice.actions;
+export const { setUserData, resetUserData, setActiveStep } = userSlice.actions;
 
 export default userSlice.reducer;

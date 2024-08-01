@@ -10,9 +10,8 @@ import {
 } from "@mui/material";
 import { useFormik, FormikValues } from "formik";
 import * as Yup from "yup";
-import { ICommonProps } from "../../screens/mainScreen";
-import { useAppDispatch } from "../../store";
-import { setUserData } from "../../store/user";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { setActiveStep, setUserData } from "../../store/user";
 import { searchLocation } from "../../services/user";
 
 // Define the shape of the form values
@@ -25,15 +24,6 @@ interface AddressFormValues {
   postalCode: string;
 }
 
-const initialValues: AddressFormValues = {
-  addressLine1: "",
-  addressLine2: "",
-  city: "",
-  state: "",
-  country: "",
-  postalCode: "",
-};
-
 const validationSchema = Yup.object({
   addressLine1: Yup.string().required("Address Line 1 is required"),
   addressLine2: Yup.string().required("Address Line 2 is required"),
@@ -45,19 +35,20 @@ const validationSchema = Yup.object({
     .matches(/^[0-9]{5,6}$/, "Postal Code must be 5 or 6 digits"),
 });
 
-const AddressForm = (props: ICommonProps) => {
-  const { setActiveStep } = props;
+const AddressForm = () => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((s) => s.user);
 
   const onSubmit = (values: FormikValues) => {
     dispatch(setUserData(values));
-    setActiveStep(2);
+    dispatch(setActiveStep(2));
   };
 
   const formik = useFormik<AddressFormValues>({
-    initialValues,
+    initialValues: user,
     validationSchema: validationSchema,
     onSubmit,
+    enableReinitialize: true,
   });
 
   const [addressOptions, setAddressOptions] = useState<string[]>([]);
@@ -77,7 +68,7 @@ const AddressForm = (props: ICommonProps) => {
       setAddressOptions([]);
     }
   };
-
+  console.log("addressLine1 ===========>", user);
   return (
     <Grid
       container
@@ -101,6 +92,7 @@ const AddressForm = (props: ICommonProps) => {
               <Grid item xs={12}>
                 <Autocomplete
                   freeSolo
+                  defaultValue={user.addressLine1 || ""}
                   onSelect={() => setAddressOptions([])}
                   options={addressOptions}
                   onInputChange={handleAddressChange}
@@ -150,6 +142,7 @@ const AddressForm = (props: ICommonProps) => {
                 <Autocomplete
                   freeSolo
                   options={addressOptions}
+                  defaultValue={user.city || ""}
                   onSelect={() => setAddressOptions([])}
                   onInputChange={handleAddressChange}
                   renderInput={(params) => (
@@ -173,6 +166,7 @@ const AddressForm = (props: ICommonProps) => {
                 <Autocomplete
                   freeSolo
                   options={addressOptions}
+                  defaultValue={user.state || ""}
                   onSelect={() => setAddressOptions([])}
                   onInputChange={handleAddressChange}
                   renderInput={(params) => (
@@ -198,6 +192,7 @@ const AddressForm = (props: ICommonProps) => {
                 <Autocomplete
                   freeSolo
                   options={addressOptions}
+                  defaultValue={user.country || ""}
                   onSelect={() => setAddressOptions([])}
                   onInputChange={handleAddressChange}
                   renderInput={(params) => (
@@ -250,7 +245,7 @@ const AddressForm = (props: ICommonProps) => {
             marginTop: 2,
           }}
         >
-          <Button onClick={() => setActiveStep(0)}>Back</Button>
+          <Button onClick={() => dispatch(setActiveStep(0))}>Back</Button>
           <Button variant="contained" color="primary" type="submit">
             Next
           </Button>
